@@ -1,7 +1,77 @@
-function EmpleosSearchForm() {
+import { useId, useState } from "react";
+
+let timeoutId = null;
+
+const useSearchForm = ({
+  idTechnology,
+  idLocation,
+  idExperienceLevel,
+  idText,
+  onSearch,
+  onTextFilter,
+}) => {
+  const [searchText, setSearchText] = useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+
+    if (event.target.name === idText) {
+      return; // ya lo manejamos en onChange
+    }
+
+    const filters = {
+      technology: formData.get(idTechnology),
+      location: formData.get(idLocation),
+      experienceLevel: formData.get(idExperienceLevel),
+    };
+
+    onSearch(filters);
+  };
+
+  const handleTextChange = (event) => {
+    const text = event.target.value;
+    setSearchText(text); // actualizamos el input inmediatamente
+
+    // Debounce: Cancelar el timeout anterior
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      onTextFilter(text);
+    }, 500);
+  };
+
+  return {
+    searchText,
+    handleSubmit,
+    handleTextChange,
+  };
+};
+
+export function SearchFormSection({ onTextFilter, onSearch }) {
+  const idText = useId();
+  const idTechnology = useId();
+  const idLocation = useId();
+  const idExperienceLevel = useId();
+
+  const { handleSubmit, handleTextChange } = useSearchForm({
+    idTechnology,
+    idLocation,
+    idExperienceLevel,
+    idText,
+    onSearch,
+    onTextFilter,
+  });
+
   return (
-    <>
-      <form id="empleos-search-form" role="search">
+    <section className="jobs-search">
+      <h1>Encuentra tu próximo trabajo</h1>
+      <p>Explora miles de oportunidades en el sector tecnológico.</p>
+
+      <form onChange={handleSubmit} id="empleos-search-form" role="search">
         <div className="search-bar">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -21,16 +91,16 @@ function EmpleosSearchForm() {
           </svg>
 
           <input
-            name="search"
+            name={idText}
             id="empleos-search-input"
-            required
             type="text"
             placeholder="Buscar trabajos, empresas o habilidades"
+            onChange={handleTextChange}
           />
         </div>
 
         <div className="search-filters">
-          <select name="technology" id="filter-technology">
+          <select name={idTechnology} id="filter-technology">
             <option value="">Tecnología</option>
             <optgroup label="Tecnologías populares">
               <option value="javascript">JavaScript</option>
@@ -48,7 +118,7 @@ function EmpleosSearchForm() {
             <option value="php">PHP</option>
           </select>
 
-          <select name="location" id="filter-location">
+          <select name={idLocation} id="filter-location">
             <option value="">Ubicación</option>
             <option value="remoto">Remoto</option>
             <option value="cdmx">Ciudad de México</option>
@@ -57,7 +127,7 @@ function EmpleosSearchForm() {
             <option value="barcelona">Barcelona</option>
           </select>
 
-          <select name="experience-level" id="filter-experience-level">
+          <select name={idExperienceLevel} id="filter-experience-level">
             <option value="">Nivel de experiencia</option>
             <option value="junior">Junior</option>
             <option value="mid">Mid-level</option>
@@ -66,9 +136,8 @@ function EmpleosSearchForm() {
           </select>
         </div>
       </form>
+
       <span id="filter-selected-value"></span>
-    </>
+    </section>
   );
 }
-
-export default EmpleosSearchForm;

@@ -1,19 +1,16 @@
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import JobsSearch from "./components/JobsSearch";
-import SearchResults from "./components/SearchResults";
-import data from "./data.json";
+import { Header } from "./components/Header.jsx";
+import { Footer } from "./components/Footer.jsx";
+
+import { HomePage } from "./pages/Home.jsx";
+import { SearchPage } from "./pages/Search.jsx";
+import { Route } from "./components/Route.jsx";
 
 function App() {
   return (
     <>
       <Header />
-      <main>
-        <JobsSearch />
-
-        <SearchResults data={data} />
-      </main>
-
+      <Route path="/" component={HomePage} />
+      <Route path="/search" component={SearchPage} />
       <Footer />
     </>
   );
